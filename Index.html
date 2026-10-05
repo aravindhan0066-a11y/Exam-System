@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Exam System</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e1a;--bg2:#0f1525;--bg3:#161d35;--surface:#1a2240;--surface2:#1f2a4a;--border:rgba(99,130,255,0.15);--accent:#4f7cff;--accent2:#7c5cff;--accent3:#00d4aa;--text:#e8eeff;--text2:#8899cc;--text3:#4a5880;--danger:#ff4f6a;--warning:#ffaa00;--success:#00d4aa;--radius:12px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+.hidden{display:none!important}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:none;border-radius:8px;font-family:'Sora',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;text-decoration:none}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(79,124,255,.4)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--surface);border-color:var(--accent)}
+.btn-danger{background:rgba(255,79,106,.15);color:var(--danger);border:1px solid rgba(255,79,106,.3)}
+.btn-danger:hover{background:rgba(255,79,106,.25)}
+.btn-success{background:rgba(0,212,170,.15);color:var(--success);border:1px solid rgba(0,212,170,.3)}
+.btn-success:hover{background:rgba(0,212,170,.25)}
+.btn-sm{padding:6px 14px;font-size:12px}
+.input-group{margin-bottom:16px}
+.input-group label{display:block;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.input-group input,.input-group select,.input-group textarea{width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Sora',sans-serif;font-size:14px;transition:border-color .2s}
+.input-group input:focus,.input-group select:focus,.input-group textarea:focus{outline:none;border-color:var(--accent)}
+.input-group textarea{resize:vertical;min-height:80px}
+.input-group select option{background:var(--bg3)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.badge-active{background:rgba(0,212,170,.15);color:var(--success)}
+.badge-pending{background:rgba(255,170,0,.15);color:var(--warning)}
+.badge-done{background:rgba(79,124,255,.15);color:var(--accent)}
+.badge-danger{background:rgba(255,79,106,.15);color:var(--danger)}
+.toast{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast-item{padding:12px 20px;border-radius:8px;font-size:14px;font-weight:500;color:#fff;opacity:0;transform:translateX(20px);transition:all .3s;pointer-events:auto}
+.toast-item.show{opacity:1;transform:translateX(0)}
+.toast-success{background:rgba(0,212,170,.9);backdrop-filter:blur(10px);border:1px solid var(--success)}
+.toast-error{background:rgba(255,79,106,.9);backdrop-filter:blur(10px);border:1px solid var(--danger)}
+.toast-info{background:rgba(79,124,255,.9);backdrop-filter:blur(10px);border:1px solid var(--accent)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{font-size:16px;font-weight:600}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.loader{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.page-loader{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9998}
+.page-loader h1{font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px;text-align:center}
+#login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 20% 50%,rgba(79,124,255,.08) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(124,92,255,.08) 0%,transparent 60%),var(--bg);padding:20px}
+.login-box{width:100%;max-width:420px}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo .icon{width:64px;height:64px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:16px;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:12px}
+.login-logo h1{font-size:22px;font-weight:700}
+.login-logo p{font-size:13px;color:var(--text2);margin-top:4px}
+.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:32px}
+.role-tabs{display:flex;gap:4px;background:var(--bg3);border-radius:8px;padding:4px;margin-bottom:24px}
+.role-tab{flex:1;text-align:center;padding:8px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);transition:all .2s}
+.role-tab.active{background:var(--surface);color:var(--text)}
+#app{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:transform .3s}
+.sidebar-logo{padding:20px;border-bottom:1px solid var(--border)}
+.sidebar-logo h2{font-size:14px;font-weight:700;color:var(--accent)}
+.sidebar-logo p{font-size:11px;color:var(--text3);margin-top:2px}
+.sidebar-nav{flex:1;padding:12px;overflow-y:auto}
+.nav-section{margin-bottom:20px}
+.nav-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);padding:4px 12px;margin-bottom:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;transition:all .15s;user-select:none}
+.nav-item:hover{background:var(--surface);color:var(--text)}
+.nav-item.active{background:linear-gradient(135deg,rgba(79,124,255,.2),rgba(124,92,255,.1));color:var(--accent);border:1px solid rgba(79,124,255,.2)}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+.sidebar-footer{padding:16px;border-top:1px solid var(--border)}
+.user-info{display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.user-details{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:11px;color:var(--text2)}
+.main{flex:1;margin-left:240px;min-height:100vh}
+.topbar{height:60px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:16px;font-weight:600}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.content{padding:24px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:all .2s}
+.stat-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.stat-icon{font-size:24px;margin-bottom:12px}
+.stat-value{font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.stat-label{font-size:12px;color:var(--text2);margin-top:4px}
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--bg3);padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);border-bottom:1px solid var(--border);white-space:nowrap}
+tbody td{padding:12px 16px;font-size:13px;border-bottom:1px solid rgba(99,130,255,.06)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(79,124,255,.04)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.form-grid .full{grid-column:1/-1}
+.question-item{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+.question-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.option-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.option-row input[type="radio"]{accent-color:var(--accent)}
+.empty-state{text-align:center;padding:60px 20px}
+.empty-icon{font-size:48px;margin-bottom:16px;opacity:.4}
+.empty-state p{color:var(--text2);font-size:14px}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:12px;flex-wrap:wrap}
+.page-header h2{font-size:20px;font-weight:700}
+.tab-bar{display:flex;gap:4px;background:var(--bg3);border-radius:8px;padding:4px;margin-bottom:20px;width:fit-content;flex-wrap:wrap}
+.tab-btn{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);transition:all .2s;border:none;background:none;font-family:'Sora',sans-serif}
+.tab-btn.active{background:var(--surface);color:var(--text)}
+.sidebar-toggle{display:none;background:none;border:none;color:var(--text);font-size:20px;cursor:pointer}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .sidebar-toggle{display:block}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+  .form-grid .full{grid-column:1}
+}
+</style>
+</head>
+<body>
+
+<!-- PAGE LOADER -->
+<div class="page-loader" id="pageLoader">
+  <div><h1>📚 Online Exam System</h1><div class="loader" style="margin:0 auto;display:block;"></div></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toastContainer"></div>
+
+<!-- LOGIN PAGE -->
+<div id="login-page" class="hidden">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="icon">📚</div>
+      <h1>Online Exam System</h1>
+      <p>Secure · Smart · Scalable</p>
+    </div>
+    <div class="login-card">
+      <div class="role-tabs">
+        <div class="role-tab active" onclick="setRole('admin')">👨‍🏫 Admin / Professor</div>
+        <div class="role-tab" onclick="setRole('student')">🎓 Student</div>
+      </div>
+      <div class="input-group">
+        <label>Email / Register Number</label>
+        <input type="text" id="loginId" placeholder="Enter your email or register number"/>
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="loginPass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doLogin()" id="loginBtn">Sign In</button>
+      <p style="text-align:center;margin-top:14px;font-size:12px;color:var(--text2)">Students: default password = Register Number</p>
+    </div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="app" class="hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <h2>📚 ExamSystem</h2>
+      <p id="sidebarRole">Loading...</p>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav"></nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="avatar" id="userAvatar">?</div>
+        <div class="user-details">
+          <div class="user-name" id="userName">User</div>
+          <div class="user-role" id="userRoleBadge">—</div>
+        </div>
+        <button class="btn btn-sm btn-danger" onclick="doLogout()" title="Logout">⏻</button>
+      </div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <span class="topbar-title" id="pageTitle">Dashboard</span>
+      </div>
+      <div class="topbar-actions">
+        <span id="currentTime" style="font-size:12px;color:var(--text2);font-family:'JetBrains Mono',monospace"></span>
+        <button class="btn btn-sm btn-secondary" onclick="loadDashboard()">🏠 Home</button>
+      </div>
+    </div>
+    <div class="content" id="mainContent">
+      <div class="empty-state"><div class="loader"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE & INIT
+// ═══════════════════════════════════════════════════
+const STATE = { token:null, role:null, name:null, loginRole:'admin' };
+
+window.onload = () => {
+  const saved = sessionStorage.getItem('oes_session');
+  if (saved) {
+    const s = JSON.parse(saved);
+    STATE.token=s.token; STATE.role=s.role; STATE.name=s.name;
+    showApp(); initApp();
+  } else {
+    document.getElementById('pageLoader').classList.add('hidden');
+    document.getElementById('login-page').classList.remove('hidden');
+  }
+  setInterval(updateClock,1000); updateClock();
+};
+
+function updateClock(){const el=document.getElementById('currentTime');if(el)el.textContent=new Date().toLocaleTimeString();}
+
+// ═══════════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════════
+function setRole(r){
+  STATE.loginRole=r;
+  document.querySelectorAll('.role-tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&r==='admin')||(i===1&&r==='student')));
+}
+
+function doLogin(){
+  const id=document.getElementById('loginId').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  if(!id||!pass)return toast('Please enter your credentials','error');
+  const btn=document.getElementById('loginBtn');
+  btn.innerHTML='<span class="loader"></span> Signing in...'; btn.disabled=true;
+  google.script.run
+    .withSuccessHandler(res=>{
+      btn.innerHTML='Sign In'; btn.disabled=false;
+      if(res.success){
+        STATE.token=res.token; STATE.role=res.role; STATE.name=res.name;
+        sessionStorage.setItem('oes_session',JSON.stringify(STATE));
+        document.getElementById('login-page').classList.add('hidden');
+        showApp(); initApp();
+        toast('Welcome, '+res.name+'!','success');
+      } else toast(res.message||'Login failed','error');
+    })
+    .withFailureHandler(e=>{btn.innerHTML='Sign In';btn.disabled=false;toast('Error: '+e.message,'error');})
+    .loginUser(id,pass,STATE.loginRole);
+}
+
+function doLogout(){
+  google.script.run.logoutUser(STATE.token);
+  sessionStorage.clear(); STATE.token=null; STATE.role=null;
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('login-page').classList.remove('hidden');
+  toast('Logged out successfully','info');
+}
+
+// ═══════════════════════════════════════════════════
+// APP SHELL
+// ═══════════════════════════════════════════════════
+function showApp(){document.getElementById('pageLoader').classList.add('hidden');document.getElementById('app').classList.remove('hidden');}
+
+function initApp(){
+  document.getElementById('userAvatar').textContent=(STATE.name||'U')[0].toUpperCase();
+  document.getElementById('userName').textContent=STATE.name||'User';
+  document.getElementById('userRoleBadge').textContent=STATE.role;
+  document.getElementById('sidebarRole').textContent={masteradmin:'Master Administrator',admin:'Admin / Professor',student:'Student'}[STATE.role]||STATE.role;
+  buildNav(); loadDashboard();
+}
+
+function buildNav(){
+  const isAdmin=['masteradmin','admin'].includes(STATE.role);
+  const isMaster=STATE.role==='masteradmin';
+  let html='';
+  if(isAdmin){
+    html+=`<div class="nav-section"><div class="nav-section-title">Overview</div>
+      <div class="nav-item active" onclick="navTo(this,loadDashboard)"><span class="nav-icon">📊</span> Dashboard</div></div>
+    <div class="nav-section"><div class="nav-section-title">Academics</div>
+      <div class="nav-item" onclick="navTo(this,loadExams)"><span class="nav-icon">📝</span> Exams</div>
+      <div class="nav-item" onclick="navTo(this,loadAssignments)"><span class="nav-icon">📋</span> Assignments</div>
+      <div class="nav-item" onclick="navTo(this,loadSubmissions)"><span class="nav-icon">📬</span> Submissions</div>
+      <div class="nav-item" onclick="navTo(this,loadMaterials)"><span class="nav-icon">📁</span> Study Materials</div></div>
+    <div class="nav-section"><div class="nav-section-title">Management</div>
+      <div class="nav-item" onclick="navTo(this,loadStudents)"><span class="nav-icon">🎓</span> Students</div>
+      <div class="nav-item" onclick="navTo(this,loadReports)"><span class="nav-icon">📈</span> Reports</div></div>`;
+    if(isMaster){
+      html+=`<div class="nav-section"><div class="nav-section-title">System</div>
+        <div class="nav-item" onclick="navTo(this,loadAdmins)"><span class="nav-icon">👤</span> Co-Admins</div>
+        <div class="nav-item" onclick="navTo(this,loadAuditLog)"><span class="nav-icon">🔍</span> Audit Log</div>
+        <div class="nav-item" onclick="navTo(this,runInit)"><span class="nav-icon">⚙️</span> Initialize System</div></div>`;
+    }
+  } else {
+    html+=`<div class="nav-section"><div class="nav-section-title">My Portal</div>
+      <div class="nav-item active" onclick="navTo(this,loadDashboard)"><span class="nav-icon">🏠</span> Dashboard</div>
+      <div class="nav-item" onclick="navTo(this,loadStudentExams)"><span class="nav-icon">📝</span> My Exams</div>
+      <div class="nav-item" onclick="navTo(this,loadStudentAssignments)"><span class="nav-icon">📋</span> Assignments</div>
+      <div class="nav-item" onclick="navTo(this,loadStudentSubmissions)"><span class="nav-icon">📬</span> My Submissions</div>
+      <div class="nav-item" onclick="navTo(this,loadMaterials)"><span class="nav-icon">📁</span> Study Materials</div></div>`;
+  }
+  html+=`<div class="nav-section"><div class="nav-section-title">Account</div>
+    <div class="nav-item" onclick="navTo(this,loadChangePassword)"><span class="nav-icon">🔒</span> Change Password</div></div>`;
+  document.getElementById('sidebarNav').innerHTML=html;
+}
+
+function navTo(el,fn){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('sidebar').classList.remove('open');
+  fn();
+}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
+
+// ═══════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════
+function toast(msg,type='info'){
+  const c=document.getElementById('toastContainer');
+  const d=document.createElement('div');
+  d.className=`toast-item toast-${type}`; d.textContent=msg; c.appendChild(d);
+  setTimeout(()=>d.classList.add('show'),10);
+  setTimeout(()=>{d.classList.remove('show');setTimeout(()=>d.remove(),300);},3500);
+}
+
+function openModal(title,bodyHtml,footerHtml){
+  closeModal();
+  const el=document.createElement('div');
+  el.className='modal-overlay'; el.id='modalOverlay';
+  el.innerHTML=`<div class="modal">
+    <div class="modal-header"><h3>${title}</h3><button class="btn btn-sm btn-secondary" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">${bodyHtml}</div>
+    ${footerHtml?`<div class="modal-footer">${footerHtml}</div>`:''}
+  </div>`;
+  document.body.appendChild(el);
+}
+function closeModal(){document.getElementById('modalOverlay')?.remove();}
+function setContent(html){document.getElementById('mainContent').innerHTML=html;}
+function setTitle(t){document.getElementById('pageTitle').textContent=t;}
+
+function formatDT(dt){
+  if(!dt)return'—';
+  try{const d=new Date(dt);return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});}
+  catch(e){return dt;}
+}
+function toDatetimeLocal(dt){
+  if(!dt)return'';
+  try{const d=new Date(dt),pad=n=>String(n).padStart(2,'0');return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;}
+  catch(e){return'';}
+}
+function shuffleArray(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+
+// ═══════════════════════════════════════════════════
+// SYSTEM INIT
+// ═══════════════════════════════════════════════════
+function runInit(){
+  setTitle('Initialize System');
+  setContent(`<div class="card" style="max-width:500px"><h3 style="margin-bottom:16px">⚙️ Initialize System</h3>
+    <p style="color:var(--text2);margin-bottom:16px">Creates all Google Sheets and Drive folders. Run <strong>once</strong> on first setup.</p>
+    <button class="btn btn-primary" id="initBtn" onclick="doInit()">🚀 Run Initialization</button>
+    <div id="initResult" style="margin-top:16px"></div></div>`);
+}
+function doInit(){
+  document.getElementById('initBtn').innerHTML='<span class="loader"></span> Initializing...';
+  document.getElementById('initBtn').disabled=true;
+  google.script.run
+    .withSuccessHandler(r=>{
+      document.getElementById('initResult').innerHTML=`<p style="color:${r.success?'var(--success)':'var(--danger)'}">${r.message}</p>`;
+      document.getElementById('initBtn').innerHTML='🚀 Run Initialization'; document.getElementById('initBtn').disabled=false;
+      toast(r.message,r.success?'success':'error');
+    })
+    .initializeSystem();
+}
+
+// ═══════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════
+function loadDashboard(){
+  setTitle('Dashboard');
+  setContent('<div class="empty-state"><div class="loader"></div><p style="margin-top:12px;color:var(--text2)">Loading dashboard...</p></div>');
+  google.script.run.withSuccessHandler(renderDashboard).withFailureHandler(e=>toast(e.message,'error')).getDashboardData(STATE.token);
+}
+
+function renderDashboard(res){
+  if(!res.success)return setContent('<div class="empty-state"><p>Failed to load dashboard. Please refresh.</p></div>');
+  const d=res.data;
+  if(res.role==='student'){
+    setContent(`
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-value" style="color:var(--accent)">${d.upcomingExams}</div><div class="stat-label">Upcoming Exams</div></div>
+        <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-value" style="color:var(--warning)">${d.activeExams}</div><div class="stat-label">Active Exams Now</div></div>
+        <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-value" style="color:var(--danger)">${d.pendingAssignments}</div><div class="stat-label">Pending Assignments</div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" style="color:var(--success)">${d.totalSubmissions}</div><div class="stat-label">Total Submissions</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px">
+        <div class="card"><h3 style="margin-bottom:16px;font-size:14px">📝 Exams</h3>
+          ${(d.recentExams||[]).slice(0,5).map(e=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${e.title}</span><span class="badge ${new Date(e.endTime)<new Date()?'badge-done':'badge-active'}">${new Date(e.endTime)<new Date()?'Ended':'Active'}</span></div>`).join('')||'<p style="color:var(--text2);font-size:13px">No exams yet</p>'}
+        </div>
+        <div class="card"><h3 style="margin-bottom:16px;font-size:14px">📋 Assignments</h3>
+          ${(d.recentAssignments||[]).slice(0,5).map(a=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${a.title}</span><span style="font-size:11px;color:var(--text2)">Due: ${new Date(a.dueDate).toLocaleDateString()}</span></div>`).join('')||'<p style="color:var(--text2);font-size:13px">No assignments yet</p>'}
+        </div>
+      </div>`);
+  } else {
+    setContent(`
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon">🎓</div><div class="stat-value" style="color:var(--accent)">${d.totalStudents}</div><div class="stat-label">Total Students</div></div>
+        <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-value" style="color:var(--accent2)">${d.totalExams}</div><div class="stat-label">Total Exams</div></div>
+        <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-value" style="color:var(--warning)">${d.totalAssigns}</div><div class="stat-label">Assignments</div></div>
+        <div class="stat-card"><div class="stat-icon">📬</div><div class="stat-value" style="color:var(--success)">${d.totalSubs}</div><div class="stat-label">Submissions</div></div>
+        <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-value" style="color:var(--warning)">${d.activeExams}</div><div class="stat-label">Active Exams</div></div>
+        <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-value" style="color:var(--danger)">${d.pendingGrade}</div><div class="stat-label">Pending Grading</div></div>
+        <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-value" style="color:var(--accent3)">${d.upcomingDeadlines}</div><div class="stat-label">Deadlines This Week</div></div>
+      </div>
+      <div class="card"><h3 style="margin-bottom:12px;font-size:14px">⚡ Quick Actions</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <button class="btn btn-primary" onclick="openCreateExam()">➕ New Exam</button>
+          <button class="btn btn-secondary" onclick="openCreateAssignment()">📋 New Assignment</button>
+          <button class="btn btn-secondary" onclick="loadStudents()">🎓 Manage Students</button>
+          <button class="btn btn-secondary" onclick="loadReports()">📈 Reports</button>
+        </div>
+      </div>`);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// EXAMS — ADMIN
+// ═══════════════════════════════════════════════════
+function loadExams(){
+  setTitle('Exams');
+  setContent('<div class="empty-state"><div class="loader"></div></div>');
+  google.script.run.withSuccessHandler(renderExams).withFailureHandler(e=>toast(e.message,'error')).getExams(STATE.token,null);
+}
+
+function renderExams(res){
+  if(!res.success)return toast(res.message,'error');
+  const now=new Date();
+  let html=`<div class="page-header"><h2>📝 Exams</h2><button class="btn btn-primary" onclick="openCreateExam()">➕ Create Exam</button></div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="filterRows(this,'examTbody','all')">All</button>
+      <button class="tab-btn" onclick="filterRows(this,'examTbody','active')">Active</button>
+      <button class="tab-btn" onclick="filterRows(this,'examTbody','upcoming')">Upcoming</button>
+      <button class="tab-btn" onclick="filterRows(this,'examTbody','ended')">Ended</button>
+    </div>`;
+  if(!res.exams.length){html+=`<div class="empty-state"><div class="empty-icon">📝</div><p>No exams yet. Create one to get started.</p></div>`;setContent(html);return;}
+  html+=`<div class="table-wrap"><table><thead><tr><th>Title</th><th>Type</th><th>Subject</th><th>Batch / Class</th><th>Start</th><th>End</th><th>Dur.</th><th>Status</th><th>Actions</th></tr></thead><tbody id="examTbody">`;
+  res.exams.forEach(e=>{
+    const s=new Date(e.startTime),en=new Date(e.endTime);
+    const st=en<now?'ended':s>now?'upcoming':'active';
+    const b=st==='active'?'badge-active':st==='upcoming'?'badge-pending':'badge-done';
+    html+=`<tr data-filter="${st}">
+      <td><strong>${e.title}</strong></td><td><span class="badge badge-pending">${e.type}</span></td><td>${e.subject}</td>
+      <td>${e.batch} / ${e.class}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${formatDT(e.startTime)}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${formatDT(e.endTime)}</td>
+      <td>${e.duration}m</td><td><span class="badge ${b}">${st}</span></td>
+      <td><div style="display:flex;gap:4px">
+        <button class="btn btn-sm btn-secondary" onclick='openEditExam(${JSON.stringify(e).replace(/'/g,"&#39;")})'>✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="confirmDel('${e.id}','${e.title}','exam')">🗑</button>
+        <button class="btn btn-sm btn-success" onclick="viewSubmissionsFor('${e.id}','${e.title}','exam')">📬</button>
+      </div></td></tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  setContent(html);
+}
+
+function filterRows(el,tbodyId,status){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active');
+  document.querySelectorAll(`#${tbodyId} tr`).forEach(r=>r.style.display=(status==='all'||r.dataset.filter===status)?'':'none');
+}
+
+window._questions=[];
+function openCreateExam(){window._questions=[];openModal('➕ Create New Exam',examFormHtml(),`<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitExamForm(null)">Create Exam</button>`);renderQuestions();}
+function openEditExam(e){window._questions=[...(e.questions||[])];openModal('✏️ Edit Exam',examFormHtml(e),`<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitExamForm('${e.id}')">Save Changes</button>`);renderQuestions();}
+
+function examFormHtml(e){
+  const v=e||{};
+  return `<div class="form-grid">
+    <div class="input-group full"><label>Exam Title *</label><input id="ef_title" value="${v.title||''}" placeholder="e.g. Mid Semester Exam"/></div>
+    <div class="input-group"><label>Type *</label><select id="ef_type"><option value="MCQ" ${v.type==='MCQ'?'selected':''}>MCQ (Auto-graded)</option><option value="Descriptive" ${v.type==='Descriptive'?'selected':''}>Descriptive</option><option value="Mixed" ${v.type==='Mixed'?'selected':''}>Mixed</option></select></div>
+    <div class="input-group"><label>Subject *</label><input id="ef_subject" value="${v.subject||''}" placeholder="Subject name"/></div>
+    <div class="input-group"><label>Batch *</label><input id="ef_batch" value="${v.batch||''}" placeholder="e.g. 2024-2025 or All"/></div>
+    <div class="input-group"><label>Class *</label><input id="ef_class" value="${v.class||''}" placeholder="e.g. 1st M.Sc or All"/></div>
+    <div class="input-group"><label>Duration (minutes) *</label><input id="ef_dur" type="number" value="${v.duration||60}" min="1"/></div>
+    <div class="input-group"><label>Start Date & Time *</label><input id="ef_start" type="datetime-local" value="${toDatetimeLocal(v.startTime)}"/></div>
+    <div class="input-group"><label>End Date & Time *</label><input id="ef_end" type="datetime-local" value="${toDatetimeLocal(v.endTime)}"/></div>
+    <div class="input-group full"><label>Instructions</label><textarea id="ef_inst">${v.instructions||''}</textarea></div>
+    <div class="input-group" style="display:flex;align-items:center;gap:12px"><label style="display:flex;align-items:center;gap:8px;margin:0;cursor:pointer"><input type="checkbox" id="ef_shuffle" ${v.shuffleQ?'checked':''} style="width:auto"> Shuffle Questions</label></div>
+    <div class="input-group" style="display:flex;align-items:center;gap:12px"><label style="display:flex;align-items:center;gap:8px;margin:0;cursor:pointer"><input type="checkbox" id="ef_multi" ${v.allowMultiple?'checked':''} style="width:auto"> Allow Multiple Attempts</label></div>
+  </div>
+  <div style="margin-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h4 style="font-size:14px">Questions</h4>
+      <div style="display:flex;gap:8px"><button class="btn btn-sm btn-secondary" onclick="addQ('MCQ')">+ MCQ</button><button class="btn btn-sm btn-secondary" onclick="addQ('Descriptive')">+ Descriptive</button></div>
+    </div>
+    <div id="questionsContainer"></div>
+  </div>`;
+}
+
+function addQ(type){window._questions.push({id:'q_'+Date.now(),type,text:'',options:['','','',''],correctAnswer:'',marks:1});renderQuestions();}
+function removeQ(i){window._questions.splice(i,1);renderQuestions();}
+function updateQ(i,k,v){window._questions[i][k]=v;}
+function updateQOpt(i,j,v){window._questions[i].options[j]=v;}
+
+function renderQuestions(){
+  const c=document.getElementById('questionsContainer');
+  if(!c)return;
+  if(!window._questions.length){c.innerHTML='<p style="color:var(--text2);font-size:13px">No questions added. Click + MCQ or + Descriptive above.</p>';return;}
+  c.innerHTML=window._questions.map((q,i)=>`
+    <div class="question-item">
+      <div class="question-header">
+        <span style="font-size:13px;font-weight:600">Q${i+1} — <span class="badge badge-pending">${q.type}</span></span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="number" min="1" value="${q.marks}" style="width:60px;padding:4px 8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px" onchange="updateQ(${i},'marks',this.value)" title="Marks"/>
+          <button class="btn btn-sm btn-danger" onclick="removeQ(${i})">🗑</button>
+        </div>
+      </div>
+      <input placeholder="Question text *" value="${q.text.replace(/"/g,'&quot;')}" onchange="updateQ(${i},'text',this.value)" style="width:100%;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;margin-bottom:10px"/>
+      ${q.type==='MCQ'?q.options.map((o,j)=>`<div class="option-row"><input type="radio" name="correct_${i}" value="${j}" ${String(q.correctAnswer)===String(j)?'checked':''} onchange="updateQ(${i},'correctAnswer',${j})" title="Mark as correct"/><input placeholder="Option ${j+1}" value="${o.replace(/"/g,'&quot;')}" onchange="updateQOpt(${i},${j},this.value)" style="flex:1;padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px"/></div>`).join(''):''}
+    </div>`).join('');
+}
+
+function submitExamForm(existingId){
+  const title=document.getElementById('ef_title').value.trim();
+  const subject=document.getElementById('ef_subject').value.trim();
+  const batch=document.getElementById('ef_batch').value.trim();
+  const cls=document.getElementById('ef_class').value.trim();
+  const start=document.getElementById('ef_start').value;
+  const end=document.getElementById('ef_end').value;
+  if(!title||!subject||!batch||!cls||!start||!end)return toast('Please fill all required fields (*)','error');
+  const data={title,type:document.getElementById('ef_type').value,subject,batch,class:cls,duration:parseInt(document.getElementById('ef_dur').value)||60,startTime:new Date(start).toISOString(),endTime:new Date(end).toISOString(),instructions:document.getElementById('ef_inst').value,shuffleQ:document.getElementById('ef_shuffle').checked,allowMultiple:document.getElementById('ef_multi').checked,questions:window._questions};
+  if(existingId){
+    google.script.run.withSuccessHandler(r=>{closeModal();if(r.success){toast('Exam updated!','success');loadExams();}else toast(r.message,'error');}).updateExam(STATE.token,existingId,data);
+  } else {
+    google.script.run.withSuccessHandler(r=>{closeModal();if(r.success){toast('Exam created!','success');loadExams();}else toast(r.message,'error');}).createExam(STATE.token,data);
+  }
+}
+
+function confirmDel(id,title,type){
+  openModal('🗑 Confirm Delete',`<p>Are you sure you want to delete <strong>${title}</strong>? This cannot be undone.</p>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="doDel('${id}','${type}')">Delete</button>`);
+}
+function doDel(id,type){
+  const fn=type==='exam'?'deleteExam':'deleteAssignment';
+  const reload=type==='exam'?loadExams:loadAssignments;
+  google.script.run.withSuccessHandler(r=>{closeModal();if(r.success){toast('Deleted','success');reload();}else toast(r.message,'error');})[fn](STATE.token,id);
+}
+
+function viewSubmissionsFor(taskId,title,type){
+  setTitle('Submissions — '+title);
+  setContent('<div class="empty-state"><div class="loader"></div></div>');
+  google.script.run.withSuccessHandler(res=>{
+    const subs=(res.submissions||[]).filter(s=>s.examOrAssignId===taskId&&s.type===type);
+    let html=`<div class="page-header"><h2>📬 Submissions: ${title}</h2><button class="btn btn-secondary" onclick="${type==='exam'?'loadExams':'loadAssignments'}()">← Back</button></div>`;
+    if(!subs.length){html+=`<div class="empty-state"><div class="empty-icon">📬</div><p>No submissions yet.</p></div>`;setContent(html);return;}
+    html+=`<div class="table-wrap"><table><thead><tr><th>Student</th><th>Reg. No</th><th>Batch</th><th>Submitted At</th><th>Score</th><th>Graded</th><th>Action</th></tr></thead><tbody>`;
+    subs.forEach(s=>{
+      html+=`<tr><td>${s.studentName}</td><td style="font-family:'JetBrains Mono',monospace">${s.registerNumber}</td><td>${s.batch}</td>
+        <td style="font-size:12px">${formatDT(s.submittedAt)}</td>
+        <td style="font-family:'JetBrains Mono',monospace">${s.score!==''&&s.score!==null?s.score:'—'}</td>
+        <td><span class="badge ${s.graded?'badge-active':'badge-pending'}">${s.graded?'✓ Graded':'Pending'}</span></td>
+        <td><button class="btn btn-sm btn-primary" onclick="openGradeModal('${s.id}','${s.studentName}')">✏️ Grade</button></td></tr>`;
+    });
+    html+=`</tbody></table></div>`;setContent(html);
+  }).getSubmissions(STATE.token,null);
+}
+
+function openGradeModal(subId,name){
+  openModal(`✏️ Grade: ${name}`,`
+    <div class="input-group"><label>Score *</label><input id="gradeScore" type="number" min="0" placeholder="Enter score"/></div>
+    <div class="input-group"><label>Feedback (optional)</label><textarea id="gradeFeedback" placeholder="Feedback for student..."></textarea></div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitGrade('${subId}')">Save Grade</button>`);
+}
+function submitGrade(id){
+  const score=document.getElementById('gradeScore').value;
+  if(score==='')return toast('Enter a score','error');
+  google.script.run.withSuccessHandler(r=>{closeModal();if(r.success)toast('Graded and student notified!','success');else toast(r.message,'error');}).gradeSubmission(STATE.token,id,parseFloat(score),document.getElementById('gradeFeedback').value);
+}
+
+// ═══════════════════════════════════════════════════
+// ASSIGNMENTS — ADMIN
+// ═══════════════════════════════════════════════════
+function loadAssignments(){
+  setTitle('Assignments');
+  setContent('<div class="empty-state"><div class="loader"></div></div>');
+  google.script.run.withSuccessHandler(res=>{
+    const now=new Date();
+    let html=`<div class="page-header"><h2>📋 Assignments</h2><button class="btn btn-primary" onclick="openCreateAssignment()">➕ Create Assignment</button></div>`;
+    if(!res.assignments.length){html+=`<div class="empty-state"><div class="empty-icon">📋</div><p>No assignments yet.</p></div>`;setContent(html);return;}
+    html+=`<div class="table-wrap"><table><thead><tr><th>Title</th><th>Subject</th><th>Batch / Class</th><th>Due Date</th><th>Max Score</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
+    res.assignments.forEach(a=>{
+      const ov=new Date(a.dueDate)<now;
+      html+=`<tr><td><strong>${a.title}</strong></td><td>${a.subject}</td><td>${a.batch} / ${a.class}</td>
+        <td style="font-size:12px;${ov?'color:var(--danger)':''}">${formatDT(a.dueDate)}</td>
+        <td>${a.maxScore}</td>
+        <td><span class="badge ${ov?'badge-danger':'badge-active'}">${ov?'Overdue':'Active'}</span></td>
+        <td><div style="display:flex;gap:4px">
+          <button class="btn btn-sm btn-secondary" onclick='openEditAssignment(${JSON.stringify(a).replace(/'/g,"&#39;")})'>✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="confirmDel('${a.id}','${a.title}','assignment')">🗑</button>
+          <button class="btn btn-sm btn-success" onclick="viewSubmissionsFor('${a.id}','${a.title}','assignment')">📬</button>
+        </div></td></tr>`;
+    });
+    html+=`</tbody></table></div>`;setContent(html);
+  }).getAssignments(STATE.token,null);
+}
+
+function openCreateAssignment(){openModal('➕ Create Assignment',assignFormHtml(),`<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitAssignForm(null)">Create</button>`);}
+function openEditAssignment(a){openModal('✏️ Edit Assignment',assignFormHtml(a),`<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitAssignForm('${a.id}')">Save Changes</button>`);}
+
+function assignFormHtml(a){
+  const v=a||{};
+  return `<div class="form-grid">
+    <div class="input-group full"><label>Title *</label><input id="af_title" value="${v.title||''}" placeholder="Assignment title"/></div>
+    <div class="input-group"><label>Subject *</label><input id="af_subject" value="${v.subject||''}" placeholder="Subject name"/></div>
+    <div class="input-group"><label>Max Score</label><input id="af_score" type="number" value="${v.maxScore||100}" min="1"/></div>
+    <div class="input-group"><label>Batch *</label><input id="af_batch" value="${v.batch||''}" placeholder="e.g. 2024-2025 or All"/></div>
+    <div class="input-group"><label>Class *</label><input id="af_class" value="${v.class||''}" placeholder="e.g. 1st M.Sc or All"/></div>
+    <div class="input-group"><label>Due Date & Time *</label><input id="af_due" type="datetime-local" value="${toDatetimeLocal(v.dueDate)}"/></div>
+    <div class="input-group full"><label>Description</label><textarea id="af_desc" rows="4">${v.description||''}</textarea></div>
+  </div>`;
+}
+
+function submitAssignForm(existingId){
+  const title=document.getElementById('af_title').value.trim();
+  const subject=document.getElementById('af_subject').value.trim();
+  const batch=document.getElementById('af_batch').value.trim();
+  const cls=document.getElementById('af_class').value.trim();
+  const due=document.getElementById('af_due').value;
+  if(!title||!subject||!batch||!cls||!due)return toast('Fill all required fields (*)','error');
+  const data={title,subject,batch,class:cls,dueDate:new Date(due).toISOString(),maxScore:parseInt(document.getElementById('af_score').value)||100,description:document.getElementById('af_desc').value};
+  if(existingId){
+    google.script.run.withSuccessHandler(r=>{closeModal();if(r.success){toast('Updated!','success');loadAssignments();}else toast(r.message,'error');}).updateAssignment(STATE.token,existingId,data);
+  } else {
+    google.script.run.withSuccessHandler(r=>{closeModal();if(r.success){toast('Assignment created!','success');loadAssignments();}else toast(r.message,'error');}).createAssignment(STATE.token,data);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// ALL SUBMISSIONS — ADMIN
+// ═══════════════════════════════════════════════════
+function loadSubmissions(){
+  setTitle('All Submissions');
+  setContent('<div class="empty-state"><div class="loader"></div></div>');
+  google.script.run.withSuccessHandler(res=>{
+    const subs=res.submissions||[];
+    let html=`<div class="page-header"><h2>📬 All Submissions (${subs.length})</h2></div>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="filterRows(this,'subTbody','all')">All</button>
+        <button class="tab-btn" onclick="filterRows(this,'subTbody','exam')">Exams</button>
+        <button class="tab-btn" onclick="filterRows(this,'subTbody','assignment')">Assignments</button>
+        <button class="tab-btn" onclick="filterRows(this,'subTbody','pending')">Needs Grading</button>
+      </div>`;
+    if(!subs.length){html+=`<div class="empty-state"><div class="empty-icon">📬</div><p>No submissions yet.</p></div>`;setContent(html);return;}
+    html+=`<div class="table-wrap"><table><thead><tr><th>Student</th><th>Reg. No</th><th>Type</th><th>Submitted At</th><th>Score</th><th>Graded</th><th>Action</th></tr></thead><tbody id="subTbody">`;
+    subs.forEach(s=>{
+      const filter=s.graded?s.type:s.type==='exam'?'exam pending':'assignment pending';
+      html+=`<tr data-filter="${s.type}" data-graded="${s.graded?'yes':'pending'}">
+        <td>${s.studentName}</td><td style="font-family:'JetBrains Mono',monospace;font-size:12px">${s.registerNumber}</td>
+        <td><span class="badge ${s.type==='exam'?'badge-pending':'badge-done'}">${s.type}</span></td>
+        <td style="font-size:12px">${formatDT(s.submittedAt)}</td>
+        <td>${s.score!==''&&s.score!==null?s.score:'—'}</td>
+        <td><span class="badge ${s.graded?'badge-active':'badge-pending'}">${s.graded?'Graded':'Pending'}</span></td>
+        <td><button class="btn btn-sm btn-primary" onclick="openGradeModal('${s.id}','${s.studentName}')">✏️</button></td></tr>`;
+    });
+    // Override filter for "pending" tab
+    html+=`</tbody></table></div>`;
+    setContent(html);
+    // Fix pending filter
+    document.querySelectorAll('.tab-btn')[3].onclick=function(){
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');
+      document.querySelectorAll('#subTbody tr').forEach(r=>r.style.display=r.dataset.graded==='pending'?'':'none');
+    };
+  }).getSubmissions(STATE.token,null);
+}
+
+// ═══════════════════════════════════════════════════
+// STUDENTS — ADMIN
+// ═══════════════════════════════════════════════════
+function loadStudents(){
+  setTitle('Students');
+  setContent('<div class="empty-state"><div class="loader"></div></div>');
+  google.script.run.withSuccessHandler(res=>{
+    const students=res.students||[];
+    let html=`<div class="page-header"><h2>🎓 Students (${students.length})</h2>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="openBulkImport()">📥 Bulk Import CSV</button>
+        <button class="btn btn-secondary" onclick="openAddStudent()">➕ Add Student</button>
+      </div></div>
+      <div class="input-group" style="max-width:360px">
+        <input placeholder="🔍 Search name, email, register number..." oninput="filterStudentTable(this.value)" id="studentSearch"/>
+      </div>`;
+    if(!students.length){html+=`<div class="empty-state"><div class="empty-icon">🎓</div><p>No students yet. Import via Bulk Import CSV.</p></div>`;setContent(html);return;}
+    html+=`<div class="table-wrap"><table><thead><tr><th>Name</th><th>Reg. No</th><th>Batch</th><th>Class</th><th>Email</th><th>Status</th><th>Action</th></tr></thead><tbody id="studentTbody">`;
+    students.forEach(s=>{
+      html+=`<tr data-search="${(s.name+s.registerNumber+s.email).toLowerCase()}">
+        <td><strong>${s.name}</strong></td>
+        <td style="font-family:'JetBrains Mono',monospace">${s.registerNumber}</td>
+        <td>${s.batch}</td><td>${s.class}</td><td style="font-size:12px">${s.email}</td>
+        <td><span class="badge ${s.active?'badge-active':'badge-danger'}">${s.active?'Active':'Inactive'}</span></td>
+        <td><button class="btn btn-sm btn-danger" onclick="confirmRemoveStudent('${s.id}','${s.name}')">Remove</button></td></tr>`;
+    });
+    html+=`</tbody></table></div>`;setContent(html);
+  }).getStudents(STATE.token,null);
+}
+
+function filterStudentTable(q){document.querySelectorAll('#studentTbody tr').forEach(r=>r.style.display=r.dataset.search.includes(q.toLowerCase())?'':'none');}
+
+function openBulkImport(){
+  openModal('📥 Bulk Import Students',`
+    <p style="color:var(--text2);font-size:13px;margin-bottom:12px">Paste student data below. One student per line in this format:</p>
+    <code style="display:block;background:var(--bg3);padding:10px;border-radius:8px;font-size:12px;margin-bottom:12px">Name, Batch, Class, RegisterNumber, Email</code>
+    <p style="color:var(--text2);font-size:12px;margin-bottom:8px">Example:</p>
+    <code style="display:block;background:var(--bg3);padding:8px;border-radius:6px;font-size:11px;margin-bottom:12px;color:var(--accent3)">Aravindhan S, 2024-2025, 1st M.Sc, 24MSC001, aravi@mail.com
+Priya R, 2024-2025, 1st M.Sc, 24MSC002, priya@mail.com</code>
+    <textarea id="bulkData" rows="8" style="width:100%;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px" placeholder="Paste student data here..."></textarea>
+    <p style="font-size:12px;color:var(--text2);margin-top:8px">⚠️ Default password for each student = their Register Number</p>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitBulkImport()">Import Students</button>`);
+}
+
+function submitBulkImport(){
+  const lines=document.getElementById('bulkData').value.trim().split('\n').filter(l=>l.trim());
+  const students=lines.map(l=>{const p=l.split(',').map(x=>x.trim());return{name:p[0],batch:p[1],class:p[2],registerNumber:p[3],email:p[4]};}).filter(s=>s.name&&s.email&&s.registerNumber);
+  if(!students.length)return toast('No valid data found. Check format.','error');
+  google.script.run.withSuccessHandler(r=>{closeModal();if(r.success){toast(`✅ Added ${r.added} students, skipped ${r.skipped} duplicates`,'success');loadStudents();}else toast(r.message,'error');}).addStudents(STATE.token,students);
+}
+
+function openAddStudent(){
+  openModal('➕ Add Student',`<div class="form-grid">
+    <div class="input-group full"><label>Full Name *</label><input id="st_name" placeholder="Student full name"/></div>
+    <div class="input-group"><label>Batch *</label><input id="st_batch" placeholder="e.g. 2024-2025"/></div>
+    <div class="input-group"><label>Class *</label><input id="st_class" placeholder="e.g. 1st M.Sc"/></div>
+    <div class="input-group"><label>Register Number *</label><input id="st_reg" placeholder="e.g. 24MSC001"/></div>
+    <div class="input-group full"><label>Email *</label><input id="st_email" type="email" placeholder="student@example.com"/></div>
+  </div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitAddStudent()">Add Student</button>`);
+}
+function submitAddStudent(){
+  const s={name:document.getElementById('st_name').value.trim(),batch:document.getElementById('st_batch').value.trim(),class:document.getElementById('st_class').value.trim(),registerNumber:document.getElementById('st_reg').value.trim(),email:document.getElementById('st_email').value.trim()};
+  if(!s.name||!s.batch||!s.class||!s.registerNumber||!s.email)return toast('Fill all required fields','error');
+  google.script.run.withSuccessHandler(r=>{closeModal();if(r.success){toast('Student added!','success');loadStudents();}else toast(r.message,'error');}).addStudents(STATE.token,[s]);
+}
+function confirmRemoveStudent(id,name){
+  openModal('Remove Student',`<p>Remove <strong>${name}</strong> from the system? They won't be able to log in.</p>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="doRemoveStudent('${id}')">Remove</button>`);
+}
+function doRemoveStudent(id){google.script.run.withSuccessHandler(r=>{closeModal();if(r.success){toast('Student removed','success');loadStudents();}else toast(r.message,'error');}).deleteStudent(STATE.token,id);}
+
+// ═══════════════════════════════════════════════════
+// CO-ADMINS
+// ═══════════════════════════════════════════════════
+function loadAdmins(){
+  setTitle('Co-Admins');
+  setContent('<div class="empty-state"><div class="loader"></div></div>');
+  google.script.run.withSuccessHandler(res=>{
+    let html=`<div class="page-header"><h2>👤 Co-Admins</h2><button class="btn btn-primary" onclick="openAddAdmin()">➕ Add Co-Admin</button></div>`;
+    if(!(res.admins||[]).length){html+=`<div class="empty-state"><div class="empty-icon">👤</div><p>No co-admins yet.</p></div>`;setContent(html);return;}
+    html+=`<div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Added By</th><th>Status</th><th>Action</th></tr></thead><tbody>`;
+    res.admins.forEach(a=>{
+      html+=`<tr><td><strong>${a.name}</strong></td><td>${a.email}</td><td><span class="badge badge-pending">${a.role}</span></td><td style="font-size:12px">${a.addedBy}</td>
+        <td><span class="badge ${a.active?'badge-active':'badge-danger'}">${a.active?'Active':'Inactive'}</span></td>
+        <td><button class="btn btn-sm btn-danger" onclick="confirmRemoveAdmin('${a.email}','${a.name}')">Remove</button></td></tr>`;
+    });
+    html+=`</tbody></table></div>`;setContent(html);
+  }).getAdmins(STATE.token);
+}
+function openAddAdmin(){
+  openModal('➕ Add Co-Admin',`<div class="form-grid">
+    <div class="input-group full"><label>Full Name *</label><input id="ad_name" placeholder="Admin name"/></div>
+    <div class="input-group full"><label>Email *</label><input id="ad_email" type="email" placeholder="admin@example.com"/></div>
+    <div class="input-group"><label>Role</label><select id="ad_role"><option value="admin">Admin</option><option value="co-admin">Co-Admin</option></select></div>
+    <div class="input-group"><label>Temporary Password *</label><input id="ad_pass" type="password" placeholder="Set a password"/></div>
+  </div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitAddAdmin()">Add Co-Admin</button>`);
+}
+function submitAddAdmin(){
+  const d={name:document.getElementById('ad_name').value.trim(),email:document.getElementById('ad_email').value.trim(),role:document.getElementById('ad_role').value,password:document.getElementById('ad_pass').value};
+  if(!d.name||!d.email||!d.password)return toast('Fill all fields','error');
+  google.script.run.withSuccessHandler(r=>{closeModal();if(r.success){toast('Co-admin added and emailed login details!','success');loadAdmins();}else toast(r.message,'error');}).addAdmin(STATE.token,d);
+}
+function confirmRemoveAdmin(email,name){
+  openModal('Remove Co-Admin',`<p>Remove <strong>${name}</strong> (${email})?</p>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="doRemoveAdmin('${email}')">Remove</button>`);
+}
+function doRemoveAdmin(email){google.script.run.withSuccessHandler(r=>{closeModal();if(r.success){toast('Co-admin removed','success');loadAdmins();}else toast(r.message,'error');}).removeAdmin(STATE.token,email);}
+
+// ═══════════════════════════════════════════════════
+// REPORTS
+// ═══════════════════════════════════════════════════
+function loadReports(){
+  setTitle('Reports');
+  setContent(`<div class="page-header"><h2>📈 Reports</h2></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px">
+      <div class="card" style="cursor:pointer" onclick="promptReport('student')"><div style="font-size:32px;margin-bottom:12px">🎓</div><h3 style="font-size:15px;margin-bottom:8px">Student Report</h3><p style="font-size:13px;color:var(--text2)">Individual performance, submission history, average score.</p></div>
+      <div class="card" style="cursor:pointer" onclick="promptReport('exam')"><div style="font-size:32px;margin-bottom:12px">📝</div><h3 style="font-size:15px;margin-bottom:8px">Exam Report</h3><p style="font-size:13px;color:var(--text2)">Exam-wise submission stats and score analysis.</p></div>
+      <div class="card" style="cursor:pointer" onclick="promptReport('batch')"><div style="font-size:32px;margin-bottom:12px">📊</div><h3 style="font-size:15px;margin-bottom:8px">Batch Report</h3><p style="font-size:13px;color:var(--text2)">Batch-wide performance overview and rankings.</p></div>
+    </div><div id="reportResult" style="margin-top:24px"></div>`);
+}
+
+function promptReport(type){
+  const label=type==='student'?'Register Number':type==='exam'?'Exam ID':'Batch Name';
+  const placeholder=type==='student'?'e.g. 24MSC001':type==='exam'?'Paste exam ID':'e.g. 2024-2025';
+  openModal(`📊 Generate ${type.charAt(0).toUpperCase()+type.slice(1)} Report`,`<div class="input-group"><label>${label}</label><input id="repVal" placeholder="${placeholder}"/></div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="genReport('${type}')">Generate</button>`);
+}
+
+function genReport(type){
+  const val=document.getElementById('repVal').value.trim(); closeModal();
+  if(!val)return toast('Enter a value','error');
+  if(type==='student'){
+    google.script.run.withSuccessHandler(res=>{
+      const st=(res.students||[]).find(s=>s.registerNumber.toString()===val||s.id===val);
+      if(!st)return toast('Student not found','error');
+      google.script.run.withSuccessHandler(r=>renderStudentReport(r)).generateReport(STATE.token,'student',{studentId:st.id});
+    }).getStudents(STATE.token,null);
+  } else if(type==='exam'){
+    google.script.run.withSuccessHandler(renderExamReport).generateReport(STATE.token,'exam',{examId:val});
+  } else {
+    google.script.run.withSuccessHandler(renderBatchReport).generateReport(STATE.token,'batch',{batch:val});
+  }
+}
+
+function renderStudentReport(r){
+  if(!r.success)return toast('Report failed','error');
+  const rep=r.report;
+  document.getElementById('reportResult').innerHTML=`<div class="card">
+    <h3 style="margin-bottom:16px">📊 Student Report: ${rep.student.name}</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;margin-bottom:16px;padding:16px;background:var(--bg3);border-radius:8px">
+      <div><span style="color:var(--text2)">Register No:</span> <strong>${rep.student.registerNumber}</strong></div>
+      <div><span style="color:var(--text2)">Batch:</span> ${rep.student.batch}</div>
+      <div><span style="color:var(--text2)">Class:</span> ${rep.student.class}</div>
+      <div><span style="color:var(--text2)">Email:</span> ${rep.student.email}</div>
+      <div><span style="color:var(--text2)">Total Submissions:</span> <strong style="color:var(--accent)">${rep.totalSubmissions}</strong></div>
+      <div><span style="color:var(--text2)">Graded:</span> <strong>${rep.gradedCount}</strong></div>
+      <div><span style="color:var(--text2)">Average Score:</span> <strong style="color:var(--accent3);font-size:18px">${rep.averageScore.toFixed(1)}</strong></div>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Task ID</th><th>Type</th><th>Submitted</th><th>Score</th><th>Status</th></tr></thead><tbody>
+    ${rep.submissions.map(s=>`<tr><td style="font-family:'JetBrains Mono',monospace;font-size:11px">${s.examOrAssignId}</td><td><span class="badge badge-pending">${s.type}</span></td><td style="font-size:12px">${formatDT(s.submittedAt)}</td><td>${s.score!==''?s.score:'—'}</td><td><span class="badge ${s.graded?'badge-active':'badge-pending'}">${s.graded?'Graded':'Pending'}</span></td></tr>`).join('')}
+    </tbody></table></div></div>`;
+}
+
+function renderExamReport(r){
+  if(!r.success)return toast('Report failed','error');
+  const rep=r.report;
+  document.getElementById('reportResult').innerHTML=`<div class="card">
+    <h3 style="margin-bottom:16px">📊 Exam Report: ${rep.exam.title||'—'}</h3>
+    <div style="display:flex;gap:24px;font-size:13px;margin-bottom:16px">
+      <div><span style="color:var(--text2)">Total Submissions:</span> <strong style="color:var(--accent)">${rep.totalSubmissions}</strong></div>
+      <div><span style="color:var(--text2)">Graded:</span> <strong>${rep.gradedCount}</strong></div>
+      <div><span style="color:var(--text2)">Average Score:</span> <strong style="color:var(--accent3)">${rep.averageScore.toFixed(1)}</strong></div>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Student</th><th>Reg. No</th><th>Batch</th><th>Submitted</th><th>Score</th><th>Graded</th></tr></thead><tbody>
+    ${rep.submissions.map(s=>`<tr><td>${s.studentName}</td><td>${s.registerNumber}</td><td>${s.batch}</td><td style="font-size:12px">${formatDT(s.submittedAt)}</td><td>${s.score!==''?s.score:'—'}</td><td><span class="badge ${s.graded?'badge-active':'badge-pending'}">${s.graded?'Yes':'No'}</span></td></tr>`).join('')}
+    </tbody></table></div></div>`;
+}
+
+function renderBatchReport(r){
+  if(!r.success)return toast('Report failed','error');
+  const rep=r.report;
+  document.getElementById('reportResult').innerHTML=`<div class="card">
+    <h3 style="margin-bottom:16px">📊 Batch Report: ${rep.batch}</h3>
+    <div style="display:flex;gap:24px;font-size:13px;margin-bottom:16px">
+      <div><span style="color:var(--text2)">Students:</span> <strong style="color:var(--accent)">${rep.totalStudents}</strong></div>
+      <div><span style="color:var(--text2)">Total Submissions:</span> <strong>${rep.totalSubmissions}</strong></div>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Name</th><th>Reg. No</th><th>Submissions</th><th>Avg. Score</th></tr></thead><tbody>
+    ${rep.students.map(s=>`<tr><td>${s.name}</td><td>${s.registerNumber}</td><td>${s.submissions}</td><td style="color:var(--accent3)">${s.averageScore.toFixed(1)}</td></tr>`).join('')}
+    </tbody></table></div></div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// AUDIT LOG
+// ═══════════════════════════════════════════════════
+function loadAuditLog(){
+  setTitle('Audit Log');
+  setContent('<div class="empty-state"><div class="loader"></div></div>');
+  google.script.run.withSuccessHandler(res=>{
+    let html=`<div class="page-header"><h2>🔍 Audit Log</h2></div>
+      <div class="table-wrap"><table><thead><tr><th>Timestamp</th><th>User</th><th>Role</th><th>Action</th><th>Details</th></tr></thead><tbody>`;
+    (res.logs||[]).forEach(l=>{
+      html+=`<tr><td style="font-family:'JetBrains Mono',monospace;font-size:11px">${formatDT(l.timestamp)}</td>
+        <td style="font-size:12px">${l.email}</td><td><span class="badge badge-pending">${l.role}</span></td>
+        <td style="font-weight:600;color:var(--accent)">${l.action}</td><td style="font-size:12px;color:var(--text2)">${l.details}</td></tr>`;
+    });
+    html+=`</tbody></table></div>`;setContent(html);
+  }).getAuditLogs(STATE.token,200);
+}
+
+// ═══════════════════════════════════════════════════
+// STUDENT — EXAMS
+// ═══════════════════════════════════════════════════
+function loadStudentExams(){
+  setTitle('My Exams');
+  setContent('<div class="empty-state"><div class="loader"></div></div>');
+  google.script.run.withSuccessHandler(res=>{
+    const now=new Date();
+    let html=`<div class="page-header"><h2>📝 My Exams</h2></div>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="filterCards(this,'examCards','all')">All</button>
+        <button class="tab-btn" onclick="filterCards(this,'examCards','active')">Active Now</button>
+        <button class="tab-btn" onclick="filterCards(this,'examCards','upcoming')">Upcoming</button>
+        <button class="tab-btn" onclick="filterCards(this,'examCards','ended')">Ended</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px" id="examCards">`;
+    if(!(res.exams||[]).length){html+=`<div style="grid-column:1/-1" class="empty-state"><div class="empty-icon">📝</div><p>No exams assigned to you yet.</p></div>`;}
+    else{res.exams.forEach(e=>{
+      const s=new Date(e.startTime),en=new Date(e.endTime);
+      const active=s<=now&&en>=now, upcoming=s>now, ended=en<now;
+      const st=active?'active':upcoming?'upcoming':'ended';
+      const tLeft=active?Math.max(0,Math.floor((en-now)/60000)):0;
+      html+=`<div class="card" data-filter="${st}">
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+          <span class="badge ${active?'badge-active':upcoming?'badge-pending':'badge-done'}">${active?`⚡ LIVE · ${tLeft}m left`:upcoming?'⏰ Upcoming':'✓ Ended'}</span>
+          <span class="badge badge-pending">${e.type}</span>
+        </div>
+        <h3 style="font-size:15px;margin-bottom:4px">${e.title}</h3>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">${e.subject} · ${(e.questions||[]).length} Questions · ${e.duration} min</p>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px">
+          <div>📅 Start: ${formatDT(e.startTime)}</div>
+          <div>🏁 End: ${formatDT(e.endTime)}</div>
+        </div>
+        ${active?`<button class="btn btn-primary" style="width:100%;justify-content:center" onclick='startExam(${JSON.stringify(e).replace(/'/g,"&#39;")})'>🚀 Start Exam</button>`:
+          upcoming?`<button class="btn btn-secondary" style="width:100%;justify-content:center" disabled>Not started yet</button>`:
+          `<button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="viewMyResult('${e.id}')">📊 View My Result</button>`}
+      </div>`;
+    });}
+    html+=`</div>`;setContent(html);
+  }).getExams(STATE.token,null);
+}
+
+function filterCards(el,gridId,status){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');
+  document.querySelectorAll(`#${gridId} [data-filter]`).forEach(c=>c.style.display=(status==='all'||c.dataset.filter===status)?'':'none');
+}
+
+function startExam(exam){
+  const now=new Date(), end=new Date(exam.endTime);
+  const totalSec=Math.max(0,Math.floor((end-now)/1000));
+  const qs=exam.shuffleQ?shuffleArray([...(exam.questions||[])]):[...(exam.questions||[])];
+  const el=document.createElement('div');
+  el.id='examOverlay';
+  el.style.cssText='position:fixed;inset:0;background:var(--bg);z-index:9000;display:flex;flex-direction:column;overflow:hidden';
+  el.innerHTML=`
+    <div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div><div style="font-size:16px;font-weight:700">${exam.title}</div><div style="font-size:12px;color:var(--text2)">${exam.subject} · ${qs.length} Questions · ${exam.duration} min</div></div>
+      <div style="text-align:center"><div style="font-size:24px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--warning)" id="examTimer">--:--</div><div style="font-size:11px;color:var(--text2)">Time Remaining</div></div>
+      <button class="btn btn-danger" onclick="confirmSubmit('${exam.id}',${exam.allowMultiple})">Submit Exam</button>
+    </div>
+    ${exam.instructions?`<div style="background:rgba(79,124,255,.08);border-bottom:1px solid var(--border);padding:10px 24px;font-size:13px;color:var(--text2)">📋 ${exam.instructions}</div>`:''}
+    <div style="flex:1;overflow-y:auto;padding:24px;max-width:800px;margin:0 auto;width:100%" id="examQs">
+      ${qs.map((q,i)=>`
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+            <span style="font-size:12px;font-weight:700;color:var(--text2)">Question ${i+1} of ${qs.length}</span>
+            <span style="font-size:12px;color:var(--accent)">${q.marks||1} mark${(q.marks||1)>1?'s':''}</span>
+          </div>
+          <p style="font-size:15px;font-weight:500;margin-bottom:14px">${q.text}</p>
+          ${q.type==='MCQ'?`<div>${(q.options||[]).map((o,j)=>`
+            <label style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;border:1px solid var(--border);margin-bottom:8px;cursor:pointer" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+              <input type="radio" name="q_${q.id}" value="${j}" onchange="recAns('${q.id}','${j}')" style="accent-color:var(--accent)"/>
+              <span style="font-size:13px">${o}</span>
+            </label>`).join('')}</div>`:`<textarea rows="5" style="width:100%;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;resize:vertical" placeholder="Type your answer here..." oninput="recAns('${q.id}',this.value)"></textarea>`}
+        </div>`).join('')}
+    </div>
+    <div style="background:var(--bg2);border-top:1px solid var(--border);padding:12px 24px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+      <div style="font-size:13px;color:var(--text2)" id="ansProgress">0 / ${qs.length} answered</div>
+      <button class="btn btn-primary" onclick="confirmSubmit('${exam.id}',${exam.allowMultiple})">🚀 Submit Exam</button>
+    </div>`;
+  document.body.appendChild(el);
+  window._ans={}; window._examStart=new Date().toISOString(); window._examQTotal=qs.length;
+  let rem=totalSec;
+  window._examTimerInt=setInterval(()=>{
+    rem--;
+    const m=Math.floor(rem/60),s=rem%60;
+    const te=document.getElementById('examTimer');
+    if(te)te.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    if(rem<=0){clearInterval(window._examTimerInt);toast('⏰ Time up! Auto-submitting...','error');setTimeout(()=>doSubmitExam(exam.id,exam.allowMultiple),1500);}
+    if(rem===300)toast('⚠️ 5 minutes remaining!','error');
+  },1000);
+  window.onbeforeunload=()=>'Exam in progress. Are you sure?';
+}
+
+function recAns(qId,val){
+  window._ans[qId]=val;
+  const count=Object.keys(window._ans).length;
+  const el=document.getElementById('ansProgress');
+  if(el)el.textContent=count+' / '+window._examQTotal+' answered';
+}
+
+function confirmSubmit(examId,allowMultiple){if(confirm('Submit exam now? You cannot change answers after submitting.'))doSubmitExam(examId,allowMultiple);}
+
+function doSubmitExam(examId,allowMultiple){
+  clearInterval(window._examTimerInt);window.onbeforeunload=null;
+  const answers=Object.keys(window._ans).map(qId=>({questionId:qId,answer:window._ans[qId]}));
+  google.script.run
+    .withSuccessHandler(r=>{
+      document.getElementById('examOverlay')?.remove();
+      if(r.success){
+        if(r.score)toast(`✅ Submitted! Your score: ${r.score.total} / ${r.score.max}`,'success');
+        else toast('✅ Exam submitted! Awaiting grading.','success');
+      } else toast(r.message||'Submission failed','error');
+      loadStudentExams();
+    })
+    .withFailureHandler(e=>{toast('Error: '+e.message,'error');})
+    .submitExam(STATE.token,{examId,answers,startedAt:window._examStart,allowMultiple});
+}
+
+function viewMyResult(examId){
+  google.script.run.withSuccessHandler(res=>{
+    const s=(res.submissions||[]).find(x=>x.examOrAssignId===examId&&x.type==='exam');
+    if(!s)return toast('No submission found for this exam','info');
+    openModal('📊 My Result',`<div style="text-align:center;padding:16px">
+      <div style="font-size:48px;margin-bottom:12px">${s.graded?'🏆':'⏳'}</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:8px">Submitted: ${formatDT(s.submittedAt)}</div>
+      ${s.graded?`<div style="font-size:36px;font-weight:700;color:var(--accent3);font-family:'JetBrains Mono',monospace">${s.score}</div><div style="font-size:13px;color:var(--text2);margin-top:4px">Score</div>`:
+      '<div style="font-size:15px;color:var(--warning)">Awaiting grading by professor</div>'}
+    </div>`);
+  }).getSubmissions(STATE.token,null);
+}
+
+// ═══════════════════════════════════════════════════
+// STUDENT — ASSIGNMENTS
+// ═══════════════════════════════════════════════════
+function loadStudentAssignments(){
+  setTitle('My Assignments');
+  setContent('<div class="empty-state"><div class="loader"></div></div>');
+  google.script.run.withSuccessHandler(asRes=>{
+    google.script.run.withSuccessHandler(subRes=>{
+      const now=new Date();
+      const submitted=new Set((subRes.submissions||[]).filter(s=>s.type==='assignment').map(s=>s.examOrAssignId));
+      const submittedMap={};
+      (subRes.submissions||[]).filter(s=>s.type==='assignment').forEach(s=>submittedMap[s.examOrAssignId]=s);
+      let html=`<div class="page-header"><h2>📋 My Assignments</h2></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">`;
+      if(!(asRes.assignments||[]).length){html+=`<div style="grid-column:1/-1" class="empty-state"><div class="empty-icon">📋</div><p>No assignments yet.</p></div>`;}
+      else{(asRes.assignments||[]).forEach(a=>{
+        const due=new Date(a.dueDate),ov=due<now,sub=submitted.has(a.id),sm=submittedMap[a.id];
+        html+=`<div class="card">
+          <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+            <span class="badge ${sub?'badge-active':ov?'badge-danger':'badge-pending'}">${sub?'✓ Submitted':ov?'Overdue':'Pending'}</span>
+            <span style="font-size:12px;color:var(--text2)">Max: ${a.maxScore}</span>
+          </div>
+          <h3 style="font-size:15px;margin-bottom:4px">${a.title}</h3>
+          <p style="font-size:12px;color:var(--text2);margin-bottom:8px">${a.subject}</p>
+          ${a.description?`<p style="font-size:13px;margin-bottom:10px">${a.description}</p>`:''}
+          <div style="font-size:12px;color:${ov?'var(--danger)':'var(--text2)'};margin-bottom:14px">⏰ Due: ${formatDT(a.dueDate)}</div>
+          ${sub&&sm?`<div style="font-size:13px;color:var(--success);margin-bottom:4px">Score: ${sm.score!==''&&sm.score!==null?sm.score:'Pending grading'}</div>`:''}
+          ${!sub&&!ov?`<button class="btn btn-primary" style="width:100%;justify-content:center" onclick="openSubmitAssignment('${a.id}','${a.title}')">📤 Submit Assignment</button>`:''}
+        </div>`;
+      });}
+      html+=`</div>`;setContent(html);
+    }).getSubmissions(STATE.token,null);
+  }).getAssignments(STATE.token,null);
+}
+
+function openSubmitAssignment(assignId,title){
+  openModal(`📤 Submit: ${title}`,`
+    <div class="input-group"><label>Your Answer (text)</label><textarea id="sub_text" rows="6" placeholder="Type your answer here..."></textarea></div>
+    <div class="input-group"><label>Upload File (optional)</label><input type="file" id="sub_file" style="padding:8px"/></div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="subBtn" onclick="doSubmitAssignment('${assignId}')">📤 Submit</button>`);
+}
+
+function doSubmitAssignment(assignId){
+  const text=document.getElementById('sub_text').value.trim();
+  const file=document.getElementById('sub_file').files[0];
+  const btn=document.getElementById('subBtn');
+  btn.innerHTML='<span class="loader"></span> Submitting...'; btn.disabled=true;
+  const finalSubmit=(fileUrl)=>{
+    if(!text&&!fileUrl){toast('Enter an answer or upload a file','error');btn.innerHTML='📤 Submit';btn.disabled=false;return;}
+    google.script.run.withSuccessHandler(r=>{closeModal();if(r.success){toast('Assignment submitted!','success');loadStudentAssignments();}else toast(r.message,'error');})
+      .submitAssignment(STATE.token,{assignmentId:assignId,textAnswer:text,fileUrl:fileUrl||''});
+  };
+  if(file){
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const b64=reader.result.split(',')[1];
+      google.script.run.withSuccessHandler(up=>{if(up.success)finalSubmit(up.fileUrl);else{toast('File upload failed','error');btn.innerHTML='📤 Submit';btn.disabled=false;}})
+        .uploadFile(STATE.token,b64,file.name,file.type,'Submissions');
+    };
+    reader.readAsDataURL(file);
+  } else finalSubmit('');
+}
+
+// ═══════════════════════════════════════════════════
+// STUDENT — MY SUBMISSIONS
+// ═══════════════════════════════════════════════════
+function loadStudentSubmissions(){
+  setTitle('My Submissions');
+  setContent('<div class="empty-state"><div class="loader"></div></div>');
+  google.script.run.withSuccessHandler(res=>{
+    const subs=res.submissions||[];
+    let html=`<div class="page-header"><h2>📬 My Submissions (${subs.length})</h2></div>`;
+    if(!subs.length){html+=`<div class="empty-state"><div class="empty-icon">📬</div><p>No submissions yet.</p></div>`;setContent(html);return;}
+    html+=`<div class="table-wrap"><table><thead><tr><th>Type</th><th>Task ID</th><th>Submitted At</th><th>Score</th><th>Status</th></tr></thead><tbody>`;
+    subs.forEach(s=>{
+      html+=`<tr><td><span class="badge ${s.type==='exam'?'badge-pending':'badge-done'}">${s.type}</span></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${s.examOrAssignId}</td>
+        <td style="font-size:12px">${formatDT(s.submittedAt)}</td>
+        <td style="font-family:'JetBrains Mono',monospace;color:var(--accent3)">${s.score!==''&&s.score!==null?s.score:'—'}</td>
+        <td><span class="badge ${s.graded?'badge-active':'badge-pending'}">${s.graded?'✓ Graded':'Pending'}</span></td></tr>`;
+    });
+    html+=`</tbody></table></div>`;setContent(html);
+  }).getSubmissions(STATE.token,null);
+}
+
+// ═══════════════════════════════════════════════════
+// STUDY MATERIALS — SHARED
+// ═══════════════════════════════════════════════════
+function loadMaterials(){
+  setTitle('Study Materials');
+  setContent('<div class="empty-state"><div class="loader"></div></div>');
+  const isAdmin=['masteradmin','admin'].includes(STATE.role);
+  google.script.run.withSuccessHandler(res=>{
+    let html=`<div class="page-header"><h2>📁 Study Materials</h2>${isAdmin?'<button class="btn btn-primary" onclick="openUploadMaterial()">📤 Upload Material</button>':''}</div>`;
+    if(!(res.materials||[]).length){html+=`<div class="empty-state"><div class="empty-icon">📁</div><p>No study materials uploaded yet.</p></div>`;setContent(html);return;}
+    html+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">`;
+    res.materials.forEach(m=>{
+      const icon=m.mimeType?.includes('pdf')?'📕':m.mimeType?.includes('image')?'🖼️':m.mimeType?.includes('video')?'🎬':'📄';
+      html+=`<a href="${m.url}" target="_blank" style="text-decoration:none">
+        <div class="card" style="cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="font-size:32px;margin-bottom:10px">${icon}</div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${m.name}">${m.name}</div>
+          <div style="font-size:11px;color:var(--text2)">${new Date(m.createdDate).toLocaleDateString()}</div>
+        </div>
+      </a>`;
+    });
+    html+=`</div>`;setContent(html);
+  }).getStudyMaterials(STATE.token);
+}
+
+function openUploadMaterial(){
+  openModal('📤 Upload Study Material',`<div class="input-group"><label>Select File *</label><input type="file" id="matFile" style="padding:8px"/></div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="matBtn" onclick="doUploadMaterial()">Upload</button>`);
+}
+function doUploadMaterial(){
+  const file=document.getElementById('matFile').files[0];
+  if(!file)return toast('Select a file first','error');
+  const btn=document.getElementById('matBtn');
+  btn.innerHTML='<span class="loader"></span> Uploading...'; btn.disabled=true;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const b64=reader.result.split(',')[1];
+    google.script.run.withSuccessHandler(r=>{btn.innerHTML='Upload';btn.disabled=false;closeModal();if(r.success){toast('Material uploaded!','success');loadMaterials();}else toast('Upload failed','error');})
+      .uploadFile(STATE.token,b64,file.name,file.type,'StudyMaterials');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ═══════════════════════════════════════════════════
+// CHANGE PASSWORD — SHARED
+// ═══════════════════════════════════════════════════
+function loadChangePassword(){
+  setTitle('Change Password');
+  setContent(`<div style="max-width:400px">
+    <div class="page-header"><h2>🔒 Change Password</h2></div>
+    <div class="card">
+      <div class="input-group"><label>Current Password</label><input type="password" id="cp_old" placeholder="Current password"/></div>
+      <div class="input-group"><label>New Password</label><input type="password" id="cp_new" placeholder="Minimum 6 characters"/></div>
+      <div class="input-group"><label>Confirm New Password</label><input type="password" id="cp_conf" placeholder="Re-enter new password"/></div>
+      <button class="btn btn-primary" onclick="doChangePassword()">Update Password</button>
+    </div>
+  </div>`);
+}
+function doChangePassword(){
+  const o=document.getElementById('cp_old').value,n=document.getElementById('cp_new').value,c=document.getElementById('cp_conf').value;
+  if(!o||!n)return toast('Fill all fields','error');
+  if(n.length<6)return toast('Password must be at least 6 characters','error');
+  if(n!==c)return toast('New passwords do not match','error');
+  google.script.run.withSuccessHandler(r=>{if(r.success){toast('Password changed successfully!','success');document.getElementById('cp_old').value='';document.getElementById('cp_new').value='';document.getElementById('cp_conf').value='';}else toast(r.message,'error');}).changePassword(STATE.token,o,n);
+}
+</script>
+</body>
+</html>
